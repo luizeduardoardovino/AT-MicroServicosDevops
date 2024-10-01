@@ -1,0 +1,11 @@
+services:
+  vehicle-service:
+    build: ./ # Caminho para o Dockerfile dentro do gateway
+    ports:
+      - "8100:8082"
+    networks:
+      - microservicos-devops
+
+networks:
+  microservicos-devops:
+    driver: bridge

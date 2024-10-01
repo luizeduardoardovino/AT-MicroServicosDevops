@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vehicle-service-deployment
+  labels:
+    app: vehicle-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: vehicle-service
+  template:
+    metadata:
+      labels:
+        app: vehicle-service
+    spec:
+      containers:
+        - name: vehicle-service
+          image: microserviosedevops-vehicle-service:latest
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: "vehicle-service"
+            - name: SERVER_PORT
+              value: "8082"
+            - name: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+            - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
+              value: "true"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:h2:mem:testdb"
+            - name: SPRING_DATASOURCE_DRIVERCLASSNAME
+              value: "org.h2.Driver"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "sa"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "password"
+            - name: SPRING_JPA_DATABASE_PLATFORM
+              value: "org.hibernate.dialect.H2Dialect"
+            - name: SPRING_JPA_SHOW_SQL
+              value: "true"
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: "update"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vehicle-service
+spec:
+  selector:
+    app: vehicle-service
+  ports:
+    - protocol: TCP
+      port: 8080  # porta interna do kubernetes
+      targetPort: 8082  # porta dentro do conteiner
+      nodePort: 30001 # porta mundo externo
+  type: NodePort
