@@ -1,0 +1,51 @@
+name: CI Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # Compilando e testando o Eureka Server
+      - name: Build and Test Eureka Server
+        working-directory: ./eureka-server/eureka-server  # Caminho para o projeto Eureka Server
+        run: |
+          mvn clean install
+          mvn test
+
+      # Compilando e testando o Status Service
+      - name: Build and Test Status Service
+        working-directory: ./status-service/status-service  # Caminho para o projeto Status Service
+        run: |
+          mvn clean install
+          mvn test
+
+      # Compilando e testando o Vehicle Service
+      - name: Build and Test Vehicle Service
+        working-directory: ./vehicle-service/vehicle-service  # Caminho para o projeto Vehicle Service
+        run: |
+          mvn clean install
+          mvn test
